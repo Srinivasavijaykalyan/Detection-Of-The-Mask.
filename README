@@ -1,7 +1,8 @@
 # mask-detection
 TensorFlow is a Python library for fast numerical computing created and released by Google. It is a foundation library that can be used to create Deep Learning models directly or by using wrapper libraries that simplify the process built on top of TensorFlow.
-<h1>In this project i have used tensor flow </h1>
- tensorflow>=1.15.2
+<h1>In this project i have used tensor flow<h2>
+tensorflow=1.15.2
+Along With tensor flow i also used :
 keras==2.3.1
 imutils==0.5.3
 numpy==1.18.2
@@ -31,20 +32,6 @@ from imutils import paths
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
-# initialize the initial learning rate, number of epochs to train for,
-# and batch size
-INIT_LR = 1e-4
-EPOCHS = 20
-BS = 32
-
-DIRECTORY = r"C:\Mask Detection\CODE\Face-Mask-Detection-master\dataset"
-CATEGORIES = ["with_mask", "without_mask"]
-
-# grab the list of images in our dataset directory, then initialize
-# the list of data (i.e., images) and class images
-print("[INFO] loading images...")
-
 data = []
 labels = []
 
@@ -70,21 +57,6 @@ labels = np.array(labels)
 (trainX, testX, trainY, testY) = train_test_split(data, labels,
 	test_size=0.20, stratify=labels, random_state=42)
 
-# construct the training image generator for data augmentation
-aug = ImageDataGenerator(
-	rotation_range=20,
-	zoom_range=0.15,
-	width_shift_range=0.2,
-	height_shift_range=0.2,
-	shear_range=0.15,
-	horizontal_flip=True,
-	fill_mode="nearest")
-
-# load the MobileNetV2 network, ensuring the head FC layer sets are
-# left off
-baseModel = MobileNetV2(weights="imagenet", include_top=False,
-	input_tensor=Input(shape=(224, 224, 3)))
-
 # construct the head of the model that will be placed on top of the
 # the base model
 headModel = baseModel.output
@@ -102,21 +74,6 @@ model = Model(inputs=baseModel.input, outputs=headModel)
 # *not* be updated during the first training process
 for layer in baseModel.layers:
 	layer.trainable = False
-
-# compile our model
-print("[INFO] compiling model...")
-opt = Adam(lr=INIT_LR, decay=INIT_LR / EPOCHS)
-model.compile(loss="binary_crossentropy", optimizer=opt,
-	metrics=["accuracy"])
-
-# train the head of the network
-print("[INFO] training head...")
-H = model.fit(
-	aug.flow(trainX, trainY, batch_size=BS),
-	steps_per_epoch=len(trainX) // BS,
-	validation_data=(testX, testY),
-	validation_steps=len(testX) // BS,
-	epochs=EPOCHS)
 
 # make predictions on the testing set
 print("[INFO] evaluating network...")
